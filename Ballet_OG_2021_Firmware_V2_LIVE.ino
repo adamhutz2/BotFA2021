@@ -38,19 +38,19 @@ const int trigPin = 9;
 const int echoPin = 10;
 
 //  POTENTIOMETER PIN ASSIGNMENTS:
-int durationPot = A0;        //Length of interaction (RANGE: 2 SEC - 30 SECS)
-int fogPot = A1;             //Amount of fog (RANGE: 0 - 100 PERCENT (BELOW 30% = 0%))
-int distancePot = A2;        //Distance of trigger (RANGE: 10cm - 183cm)
-int cooldownPot = A3;        //Delay between spawning events (RANGE: 10 SECS - 300 SECS)
-int delayPot = A4;           //Delay between trigger and activated events (RANGE: 0 SECS - 15 SECS)
-int fogOffsetPot = A5;       //Delay between when fog begins and when bubbles begin (RANGE: 0 SECS - 5 SECS)
+int durationPot = A0;
+int fogPot = A1;
+int distancePot = A2;
+int cooldownPot = A3;
+int delayPot = A4;
+int fogOffsetPot = A5;
 
 int fuzziesPin1 = 11;        //These "fuzzies" pins control the Avatar-like anemone light strings
 int fuzziesPin2 = 5;         //that protrude through some of the ceramic objects.
 int fuzziesPin3 = 6;
 
-int buttonPin = 12;
-int buttonState = 0;
+//int buttonPin = 12;       //For testing
+//int buttonState = 0;      //For testing
 
 
 
@@ -58,34 +58,34 @@ int buttonState = 0;
 //  ******************************************************************************************
 //  DURATION POT PARAMS:
 int durationPotValue = 0;
-int minDuration = 2000;
+int minDuration = 2000;        //Length of interaction (RANGE: 2 SEC - 30 SECS)
 int maxDuration = 30000;
 int durationPotValueAdjusted = 0;
 bool durationExceeded = 0;
 
 //  FOG POT PARAMS:
 int fogPotValue = 0;
-int fogPotValueAdjusted = 0;
+int fogPotValueAdjusted = 0;    //Amount of fog (RANGE: 0 - 100 PERCENT (BELOW 30% = 0%))
 bool fogTriggered = 0;
 
 //  DISTANCE POT PARAMS:
 int distancePotValue = 0;
 int distancePotValueAdjusted = 0;
 int minDistance = 10;
-int maxDistance = 183;
+int maxDistance = 183;          //Distance of trigger (RANGE: 10cm - 183cm)
 bool distanceTriggered = 0;
 
 //  COOLDOWN POT PARAMS:
 int cooldownPotValue = 0;
 int minCooldown = 10000;
-int maxCooldown = 300000;
+int maxCooldown = 300000;       //Delay between spawning events (RANGE: 10 SECS - 300 SECS)
 int cooldownPotValueAdjusted = 0;
 bool cooldownExceeded = 1;
 
 //  DELAY POT PARAMS:
 int delayPotValue = 0;
 int minDelay = 0;
-int maxDelay = 15000;
+int maxDelay = 15000;           //Delay between trigger and activated events (RANGE: 0 SECS - 15 SECS)
 int delayPotValueAdjusted = 0;
 int delayPotValueAdjustedCountdown = 0;
 bool delayExceeded = 0;
@@ -93,8 +93,8 @@ bool delayExceeded = 0;
 //  FOG OFFSET POT PARAMS:
 int fogOffsetPotValue = 0;
 int minFogOffset = 0;
-int maxFogOffset = 5000;
-int fogOffsetPotValueAdjusted = 0;
+int maxFogOffset = 5000;        //Delay between when fog begins and when bubbles begin (RANGE: 0 SECS - 5 SECS)
+int fogOffsetPotValueAdjusted = 0;  //...and also between when fog ends and bubbles end (same range)
 bool fogOffset1Exceeded = 0;
 bool fogOffset2Exceeded = 0;
 
@@ -151,7 +151,7 @@ CRGBPalette16 gTargetPalette;
 //  ******************************************************************************************
 
 // constants for min and max PWM
-const int minPWM = 3;
+const int minPWM = 3;             //"Dimmest" value that anemone lights will achieve before reversing direction
 const int maxPWM = 255;
 
 // State Variable for Fade Direction
@@ -176,7 +176,7 @@ unsigned long fade1Millis;
 unsigned long fade2Millis;
 unsigned long fade3Millis;
 
-// How fast to increment? (Increasing values will increase "twinkle" speed)
+// How fast to increment? (Increasing values will increase speed of fade)
 int fadeInterval1 = 5;
 int fadeInterval2 = 10;
 int fadeInterval3 = 15;
@@ -220,7 +220,7 @@ void loop() {
   FastLED.show();               //This function for illuminating the embedded neopixels
   doTheFade(currentMillis);     //This function fades the fuzzy lights in and out at intervals
   mapPots();                    //This function reads all six potentiometers and maps their resistance values to "min/max" ranges for each adjustment
-  distanceFinding();            //This function reads the distance sensor
+  distanceFinding();            //This function reads the distance sensor once per loop
 
   //  if (buttonState == LOW && cooldownExceeded == 1) {               This line is for testing with a button
 
