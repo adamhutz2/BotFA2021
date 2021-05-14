@@ -1,4 +1,4 @@
-//  Written/Compiled by Adam Hutz, OVERGROWN Group, 2021
+//  Written/Compiled by Adam Hutz and KJ Wu, OVERGROWN Group, 2021
 //  Built upon examples found within the FastLED and TwinkleFOX libraries
 //  which were developed by Daniel Garcia and Mark Kriegsman, 2012 - 2015
 //  Credit also to James Lewis for his pwm-fade-with-millis.ino example,
