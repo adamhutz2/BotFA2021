@@ -1,4 +1,4 @@
-//  Written/Compiled by Adam Hutz and KJ Wu, OVERGROWN Group, 2021
+//  Written/Compiled by Adam Hutz, OVERGROWN Group, 2021
 //  Built upon examples found within the FastLED and TwinkleFOX libraries
 //  which were developed by Daniel Garcia and Mark Kriegsman, 2012 - 2015
 //  Credit also to James Lewis for his pwm-fade-with-millis.ino example,
@@ -8,6 +8,9 @@
 #include "FastLED.h"
 #include <Conceptinetics.h>
 
+// Comment out/in the below 2 lines to enable/disable "serial monitor" testing mode
+
+
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
@@ -15,14 +18,14 @@
 #define NUM_LEDS      12 //Note: I think there were 8 in the system, but can't hurt to index a few extra just in case
 #define LED_TYPE   WS2811
 #define COLOR_ORDER   GRB
-#define DATA_PIN        8
-//#define CLK_PIN       4
+#define DATA_PIN        8 //Neopixel data pin
 #define VOLTS          5
 #define MAX_MA       4000
 #define BUBBLE_CHANNEL 20
 #define HAZE_CHANNEL 21
 #define DMX_MASTER_CHANNELS   100
 #define RXEN_PIN                2
+
 DMX_Master        dmx_master ( DMX_MASTER_CHANNELS, RXEN_PIN );
 
 #define UP 0
@@ -38,19 +41,19 @@ const int trigPin = 9;
 const int echoPin = 10;
 
 //  POTENTIOMETER PIN ASSIGNMENTS:
-int durationPot = A0;
-int fogPot = A1;
-int distancePot = A2;
-int cooldownPot = A3;
-int delayPot = A4;
-int fogOffsetPot = A5;
+int durationPot = A0;        //Length of interaction (RANGE: 2 SEC - 30 SECS)
+int fogPot = A1;             //Amount of fog (RANGE: 0 - 100 PERCENT (BELOW 30% = 0%))
+int distancePot = A2;        //Distance of trigger (RANGE: 10cm - 183cm)
+int cooldownPot = A3;        //Delay between spawning events (RANGE: 10 SECS - 300 SECS)
+int delayPot = A4;           //Delay between trigger and activated events (RANGE: 0 SECS - 15 SECS)
+int fogOffsetPot = A5;       //Delay between when fog begins and when bubbles begin (RANGE: 0 SECS - 5 SECS)
 
 int fuzziesPin1 = 11;        //These "fuzzies" pins control the Avatar-like anemone light strings
 int fuzziesPin2 = 5;         //that protrude through some of the ceramic objects.
 int fuzziesPin3 = 6;
 
-//int buttonPin = 12;       //For testing
-//int buttonState = 0;      //For testing
+int buttonPin = 12;
+int buttonState = 0;
 
 
 
@@ -58,34 +61,34 @@ int fuzziesPin3 = 6;
 //  ******************************************************************************************
 //  DURATION POT PARAMS:
 int durationPotValue = 0;
-int minDuration = 2000;        //Length of interaction (RANGE: 2 SEC - 30 SECS)
+int minDuration = 2000;
 int maxDuration = 30000;
 int durationPotValueAdjusted = 0;
 bool durationExceeded = 0;
 
 //  FOG POT PARAMS:
 int fogPotValue = 0;
-int fogPotValueAdjusted = 0;    //Amount of fog (RANGE: 0 - 100 PERCENT (BELOW 30% = 0%))
+int fogPotValueAdjusted = 0;
 bool fogTriggered = 0;
 
 //  DISTANCE POT PARAMS:
 int distancePotValue = 0;
 int distancePotValueAdjusted = 0;
 int minDistance = 10;
-int maxDistance = 183;          //Distance of trigger (RANGE: 10cm - 183cm)
+int maxDistance = 183;
 bool distanceTriggered = 0;
 
 //  COOLDOWN POT PARAMS:
 int cooldownPotValue = 0;
 int minCooldown = 10000;
-int maxCooldown = 300000;       //Delay between spawning events (RANGE: 10 SECS - 300 SECS)
+int maxCooldown = 300000;
 int cooldownPotValueAdjusted = 0;
 bool cooldownExceeded = 1;
 
 //  DELAY POT PARAMS:
 int delayPotValue = 0;
 int minDelay = 0;
-int maxDelay = 15000;           //Delay between trigger and activated events (RANGE: 0 SECS - 15 SECS)
+int maxDelay = 15000;
 int delayPotValueAdjusted = 0;
 int delayPotValueAdjustedCountdown = 0;
 bool delayExceeded = 0;
@@ -93,8 +96,8 @@ bool delayExceeded = 0;
 //  FOG OFFSET POT PARAMS:
 int fogOffsetPotValue = 0;
 int minFogOffset = 0;
-int maxFogOffset = 5000;        //Delay between when fog begins and when bubbles begin (RANGE: 0 SECS - 5 SECS)
-int fogOffsetPotValueAdjusted = 0;  //...and also between when fog ends and bubbles end (same range)
+int maxFogOffset = 5000;
+int fogOffsetPotValueAdjusted = 0;
 bool fogOffset1Exceeded = 0;
 bool fogOffset2Exceeded = 0;
 
@@ -151,7 +154,7 @@ CRGBPalette16 gTargetPalette;
 //  ******************************************************************************************
 
 // constants for min and max PWM
-const int minPWM = 3;             //"Dimmest" value that anemone lights will achieve before reversing direction
+const int minPWM = 3;
 const int maxPWM = 255;
 
 // State Variable for Fade Direction
@@ -176,10 +179,10 @@ unsigned long fade1Millis;
 unsigned long fade2Millis;
 unsigned long fade3Millis;
 
-// How fast to increment? (Increasing values will increase speed of fade)
-int fadeInterval1 = 5;
-int fadeInterval2 = 10;
-int fadeInterval3 = 15;
+// How fast to increment? (Increasing values will decrease "twinkle" speed)
+int fadeInterval1 = 6;
+int fadeInterval2 = 6;
+int fadeInterval3 = 6;
 
 //   PROGRAM SETUP
 //  ******************************************************************************************
@@ -207,6 +210,7 @@ void setup() {
   analogWrite(fuzziesPin3, fadeValue3);
 
   //  Serial.begin(9600);
+  //  Serial.println("System initialized.");
 }
 
 
@@ -220,7 +224,7 @@ void loop() {
   FastLED.show();               //This function for illuminating the embedded neopixels
   doTheFade(currentMillis);     //This function fades the fuzzy lights in and out at intervals
   mapPots();                    //This function reads all six potentiometers and maps their resistance values to "min/max" ranges for each adjustment
-  distanceFinding();            //This function reads the distance sensor once per loop
+  distanceFinding();            //This function reads the distance sensor
 
   //  if (buttonState == LOW && cooldownExceeded == 1) {               This line is for testing with a button
 
@@ -508,27 +512,6 @@ void systemShutdown() {
 }
 
 void distanceFinding() {
-  //  unsigned long currentMicros = micros();
-
-  //  NEW UNTESTED VERSION
-  //  digitalWrite(trigPin, LOW);
-  //
-  //  if (trigHigh == 0 && currentMicros - previousMicros >= 2) {
-  //    digitalWrite(trigPin, HIGH);
-  //    trigHigh = 1;
-  //    previousMicros = currentMicros;
-  //  }
-  //
-  //  if (trigHigh == 1 && currentMicros - previousMicros >= 10) {
-  //    digitalWrite(trigPin, LOW);
-  //    trigHigh = 0;
-  //    previousMicros = currentMicros;
-  //  }
-  //
-  //  duration = pulseIn(echoPin, HIGH);
-  //  distance = duration * 0.034 / 2;
-
-  // OLD version:
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
@@ -579,7 +562,7 @@ void doTheFade(unsigned long thisMillis) {
           fadeDirection2 = HOVER;
         }
       }
-      else if (fadeDirection2 == HOVER && thisMillis - fade1Millis >= 6500) {
+      else if (fadeDirection2 == HOVER && thisMillis - fade2Millis >= 6500) {
         fadeDirection2 = UP;
       }
     }
@@ -612,7 +595,7 @@ void doTheFade(unsigned long thisMillis) {
 
   previousFadeMillis = thisMillis;
 
-  //    SERIAL PRINTOUTS FOR TESTING VALUES OF FUZZY LED STRANDS
+  //  SERIAL PRINTOUTS FOR TESTING VALUES OF FUZZY LED STRANDS
   //  Serial.print("                                                   fadeValue: 1 | 2 | 3 = ");
   //  Serial.print(fadeValue1);
   //  Serial.print(" | ");
