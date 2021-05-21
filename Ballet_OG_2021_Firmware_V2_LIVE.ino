@@ -8,9 +8,6 @@
 #include "FastLED.h"
 #include <Conceptinetics.h>
 
-// Comment out/in the below 2 lines to enable/disable "serial monitor" testing mode
-
-
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
 #endif
