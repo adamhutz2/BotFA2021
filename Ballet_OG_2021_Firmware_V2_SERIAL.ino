@@ -6,9 +6,7 @@
 //  See baldengineer.com/fading-led-analogwrite-millis-example.html
 
 #include "FastLED.h"
-
 //#include <Conceptinetics.h>
-//DMX_Master        dmx_master ( DMX_MASTER_CHANNELS, RXEN_PIN );
 
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001000)
 #warning "Requires FastLED 3.1 or later; check github for latest code."
@@ -17,14 +15,15 @@
 #define NUM_LEDS      12 //Note: I think there were 8 in the system, but can't hurt to index a few extra just in case
 #define LED_TYPE   WS2811
 #define COLOR_ORDER   GRB
-#define DATA_PIN        8
-//#define CLK_PIN       4
+#define DATA_PIN        8 //Neopixel data pin
 #define VOLTS          5
 #define MAX_MA       4000
 #define BUBBLE_CHANNEL 20
 #define HAZE_CHANNEL 21
 #define DMX_MASTER_CHANNELS   100
 #define RXEN_PIN                2
+
+//DMX_Master        dmx_master ( DMX_MASTER_CHANNELS, RXEN_PIN );
 
 #define UP 0
 #define DOWN 1
@@ -177,10 +176,10 @@ unsigned long fade1Millis;
 unsigned long fade2Millis;
 unsigned long fade3Millis;
 
-// How fast to increment? (Increasing values will increase "twinkle" speed)
-int fadeInterval1 = 5;
-int fadeInterval2 = 10;
-int fadeInterval3 = 15;
+// How fast to increment? (Increasing values will decrease "twinkle" speed)
+int fadeInterval1 = 6;
+int fadeInterval2 = 6;
+int fadeInterval3 = 6;
 
 //   PROGRAM SETUP
 //  ******************************************************************************************
@@ -208,6 +207,7 @@ void setup() {
   analogWrite(fuzziesPin3, fadeValue3);
 
   Serial.begin(9600);
+  Serial.println("System initialized.");
 }
 
 
@@ -509,27 +509,6 @@ void systemShutdown() {
 }
 
 void distanceFinding() {
-  //  unsigned long currentMicros = micros();
-
-  //  NEW UNTESTED VERSION
-  //  digitalWrite(trigPin, LOW);
-  //
-  //  if (trigHigh == 0 && currentMicros - previousMicros >= 2) {
-  //    digitalWrite(trigPin, HIGH);
-  //    trigHigh = 1;
-  //    previousMicros = currentMicros;
-  //  }
-  //
-  //  if (trigHigh == 1 && currentMicros - previousMicros >= 10) {
-  //    digitalWrite(trigPin, LOW);
-  //    trigHigh = 0;
-  //    previousMicros = currentMicros;
-  //  }
-  //
-  //  duration = pulseIn(echoPin, HIGH);
-  //  distance = duration * 0.034 / 2;
-
-  // OLD version:
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
@@ -580,7 +559,7 @@ void doTheFade(unsigned long thisMillis) {
           fadeDirection2 = HOVER;
         }
       }
-      else if (fadeDirection2 == HOVER && thisMillis - fade1Millis >= 6500) {
+      else if (fadeDirection2 == HOVER && thisMillis - fade2Millis >= 6500) {
         fadeDirection2 = UP;
       }
     }
