@@ -7,8 +7,6 @@
 
 #include "FastLED.h"
 
-// Comment out/in the below lines to enable/disable "serial monitor" testing mode
-
 //#include <Conceptinetics.h>
 //DMX_Master        dmx_master ( DMX_MASTER_CHANNELS, RXEN_PIN );
 
