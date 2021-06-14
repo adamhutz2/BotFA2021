@@ -104,10 +104,11 @@ bool fogOffset2Exceeded = 0;
 long duration;
 int distance;
 bool trigHigh = 0;
+int distanceCheckedCooldownInterval = 1000;
 
 // variables dealing with time
 unsigned long previousMillis = 0;
-unsigned long previousMicros = 0;
+unsigned long distanceCooldownMillis = 0;
 
 // Overall twinkle speed.
 // 0 (VERY slow) to 8 (VERY fast).
@@ -177,9 +178,9 @@ unsigned long fade2Millis;
 unsigned long fade3Millis;
 
 // How fast to increment? (Increasing values will decrease "twinkle" speed)
-int fadeInterval1 = 6;
-int fadeInterval2 = 6;
-int fadeInterval3 = 6;
+int fadeInterval1 = 4;
+int fadeInterval2 = 4;
+int fadeInterval3 = 4;
 
 //   PROGRAM SETUP
 //  ******************************************************************************************
@@ -221,7 +222,10 @@ void loop() {
   FastLED.show();               //This function for illuminating the embedded neopixels
   doTheFade(currentMillis);     //This function fades the fuzzy lights in and out at intervals
   mapPots();                    //This function reads all six potentiometers and maps their resistance values to "min/max" ranges for each adjustment
-  distanceFinding();            //This function reads the distance sensor
+  if (currentMillis - distanceCooldownMillis > distanceCheckedCooldownInterval) {
+    distanceFinding();//This function reads the distance sensor. "If" conditional slows it down, since using delay inside it is unavoidable.
+    distanceCooldownMillis = currentMillis;
+  }
 
   //  if (buttonState == LOW && cooldownExceeded == 1) {               This line is for testing with a button
 
@@ -516,10 +520,13 @@ void distanceFinding() {
   digitalWrite(trigPin, LOW);
   duration = pulseIn(echoPin, HIGH);
   distance = duration * 0.034 / 2;
-
-  // For testing, in the absence of a distance sensor, we can use a button:
-  //  buttonState = digitalRead(buttonPin);M
 }
+
+
+
+// For testing, in the absence of a distance sensor, we can use a button:
+//  buttonState = digitalRead(buttonPin);M
+
 
 void doTheFade(unsigned long thisMillis) {
   {
