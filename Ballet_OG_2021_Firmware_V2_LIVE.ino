@@ -15,7 +15,7 @@
 #define NUM_LEDS      12 //Note: I think there were 8 in the system, but can't hurt to index a few extra just in case
 #define LED_TYPE   WS2811
 #define COLOR_ORDER   GRB
-#define DATA_PIN        8 //Neopixel data pin
+#define DATA_PIN        4 //Neopixel data pin
 #define VOLTS          5
 #define MAX_MA       4000
 #define BUBBLE_CHANNEL 20
@@ -153,7 +153,7 @@ CRGBPalette16 gTargetPalette;
 
 // constants for min and max PWM
 const int minPWM = 3;
-const int maxPWM = 255;
+const int maxPWM = 150;
 
 // State Variable for Fade Direction
 byte fadeDirection1 = UP;
@@ -167,8 +167,8 @@ int fadeValue2 = 0;
 int fadeValue3 = 0;
 
 // How smooth to fade?
-byte fadeIncrement1 = 3;
-byte fadeIncrement2 = 2;
+byte fadeIncrement1 = 1;
+byte fadeIncrement2 = 1;
 byte fadeIncrement3 = 1;
 
 // millis() timing Variable, just for fading
@@ -181,6 +181,10 @@ unsigned long fade3Millis;
 int fadeInterval1 = 4;
 int fadeInterval2 = 4;
 int fadeInterval3 = 4;
+
+int fade1Hover = 4019; //duration of time between fuzzy light "breaths." Prime numbers keep overlap to a minimum
+int fade2Hover = 5179;
+int fade3Hover = 6449;
 
 //   PROGRAM SETUP
 //  ******************************************************************************************
@@ -545,7 +549,7 @@ void doTheFade(unsigned long thisMillis) {
           fadeDirection1 = HOVER;
         }
       }
-      else if (fadeDirection1 == HOVER && thisMillis - fade1Millis >= 5000) {
+      else if (fadeDirection1 == HOVER && thisMillis - fade1Millis >= fade1Hover) {
         fadeDirection1 = UP;
       }
     }
@@ -566,7 +570,7 @@ void doTheFade(unsigned long thisMillis) {
           fadeDirection2 = HOVER;
         }
       }
-      else if (fadeDirection2 == HOVER && thisMillis - fade2Millis >= 6500) {
+      else if (fadeDirection2 == HOVER && thisMillis - fade2Millis >= fade2Hover) {
         fadeDirection2 = UP;
       }
     }
@@ -587,7 +591,7 @@ void doTheFade(unsigned long thisMillis) {
           fadeDirection3 = HOVER;
         }
       }
-      else if (fadeDirection3 == HOVER && thisMillis - fade3Millis >= 3500) {
+      else if (fadeDirection3 == HOVER && thisMillis - fade3Millis >= fade3Hover) {
         fadeDirection3 = UP;
       }
     }
